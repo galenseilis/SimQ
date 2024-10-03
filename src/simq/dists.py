@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
+
 # Abstract base class for distributions
 class Distribution(ABC):
     @abstractmethod
     def sample(self, queue):
         pass
+
 
 # Exponential distribution class
 class Exponential(Distribution):
@@ -13,6 +15,7 @@ class Exponential(Distribution):
 
     def sample(self, queue):
         return np.random.exponential(1 / self.rate)
+
 
 # Normal distribution class
 class Normal(Distribution):

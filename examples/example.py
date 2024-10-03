@@ -4,17 +4,28 @@ from simq.dists import Exponential, Normal
 from simq.core import GGCQueue, QueueSystem
 # Example routing strategies for individual queues
 
+
 # After Queue 1, 50% chance to go to Queue 2, or leave the system
 def queue1_routing(customer_id, current_queue, queue_system):
     if np.random.rand() < 0.5:
-        queue_system.event_log.append(f"Customer {customer_id} is routed from {current_queue.name} to Queue 2.")
-        yield queue_system.env.process(queue_system.queues[1].customer(customer_id, queue_system))
+        queue_system.event_log.append(
+            f"Customer {customer_id} is routed from {current_queue.name} to Queue 2."
+        )
+        yield queue_system.env.process(
+            queue_system.queues[1].customer(customer_id, queue_system)
+        )
     else:
-        queue_system.event_log.append(f"Customer {customer_id} leaves the system after {current_queue.name}.")
+        queue_system.event_log.append(
+            f"Customer {customer_id} leaves the system after {current_queue.name}."
+        )
+
 
 # After Queue 2, customer always leaves the system
 def queue2_routing(customer_id, current_queue, queue_system):
-    queue_system.event_log.append(f"Customer {customer_id} leaves the system after {current_queue.name}.")
+    queue_system.event_log.append(
+        f"Customer {customer_id} leaves the system after {current_queue.name}."
+    )
+
 
 # Example usage with multiple queues and individual routing strategies
 env = simpy.Environment()
@@ -26,7 +37,7 @@ queue1 = GGCQueue(
     num_servers=2,
     service_time_dist=Exponential(rate=3.0),
     inter_arrival_dist=Exponential(rate=2.0),
-    routing_strategy=queue1_routing
+    routing_strategy=queue1_routing,
 )
 
 queue2 = GGCQueue(
@@ -35,7 +46,7 @@ queue2 = GGCQueue(
     num_servers=1,
     service_time_dist=Normal(mean=2.0, stddev=0.5),
     inter_arrival_dist=Exponential(rate=1.5),  # Different arrival rate for Queue 2
-    routing_strategy=queue2_routing
+    routing_strategy=queue2_routing,
 )
 
 # Define a queue system with multiple queues
@@ -56,4 +67,3 @@ for queue in system.queues:
     else:
         print(f"\nNo customers waited at {queue.name}.")
     print(f"Customers served at {queue.name}: {queue.customers_served}")
-
