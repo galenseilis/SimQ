@@ -16,7 +16,6 @@ class GGCQueue:
         self.service_time_dist = service_time_dist
         self.inter_arrival_dist = inter_arrival_dist
         self.routing_strategy = routing_strategy
-        self.customers_served = 0
 
     def customer(self, customer_id, queue_system):
         arrival_time = self.env.now
@@ -40,7 +39,6 @@ class GGCQueue:
             queue_system.event_log.append(
                 f"Customer {customer_id} finished service after {service_time:.2f} at queue {self.name}"
             )
-            self.customers_served += 1
 
             # Decide the next action based on routing strategy
             if self.routing_strategy:
