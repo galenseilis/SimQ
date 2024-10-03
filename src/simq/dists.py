@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+import numpy as np
 
 # Abstract base class for distributions
 class Distribution(ABC):
