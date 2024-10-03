@@ -2,8 +2,7 @@ import simpy
 
 from simq.dists import Exponential, Normal
 from simq.core import GGCQueue, QueueSystem
-# Example routing strategies for individual queues
-
+import numpy as np
 
 # After Queue 1, 50% chance to go to Queue 2, or leave the system
 def queue1_routing(customer_id, current_queue, queue_system):
