@@ -1,7 +1,5 @@
 import simpy
 
-
-# Queue class with its own routing logic and arrival process
 class GGCQueue:
     def __init__(
         self,
@@ -15,9 +13,9 @@ class GGCQueue:
         self.env = env
         self.name = name
         self.server = simpy.Resource(env, capacity=num_servers)
-        self.service_time_dist = service_time_dist  # Service time distribution
-        self.inter_arrival_dist = inter_arrival_dist  # Inter-arrival time distribution
-        self.routing_strategy = routing_strategy  # Routing function to decide next step
+        self.service_time_dist = service_time_dist
+        self.inter_arrival_dist = inter_arrival_dist
+        self.routing_strategy = routing_strategy
         self.waiting_times = []
         self.customers_served = 0
 
@@ -57,8 +55,9 @@ class GGCQueue:
                 )
 
     def generate_customers(self, queue_system):
+        """Generate customers for this queue based on its inter-arrival time distribution."""
+
         while True:
-            # Generate customers for this queue based on its inter-arrival time distribution
             inter_arrival_time = self.inter_arrival_dist.sample(self)
             yield self.env.timeout(inter_arrival_time)
 
@@ -67,20 +66,20 @@ class GGCQueue:
             self.env.process(self.customer(customer_id, queue_system))
 
 
-# Queue system manages multiple queues and tracks customer IDs
 class QueueSystem:
+    """Queue system manages multiple queues and tracks customer IDs"""
     def __init__(self, env, queues):
         self.env = env
-        self.queues = queues  # List of queues
-        self.customer_id_counter = 0  # Centralized customer ID counter
+        self.queues = queues
+        self.customer_id_counter = 0
         self.event_log = []
 
     def start_customer_generation(self):
-        # Start customer generation for each queue
+        """Start customer generation for each queue"""
         for queue in self.queues:
             self.env.process(queue.generate_customers(self))
 
     def get_next_customer_id(self):
-        # Increment the customer ID counter and return the next unique ID
+        """Increment the customer ID counter and return the next unique ID"""
         self.customer_id_counter += 1
         return self.customer_id_counter
