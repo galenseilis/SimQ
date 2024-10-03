@@ -1,5 +1,6 @@
 import simpy
 
+
 class GGCQueue:
     def __init__(
         self,
@@ -20,7 +21,12 @@ class GGCQueue:
     def customer(self, customer_id, queue_system):
         arrival_time = self.env.now
         queue_system.event_log.append(
-            f"Customer {customer_id} arrived at {arrival_time:.2f} at queue {self.name}"
+            {
+                "customer": customer_id,
+                "action": "arrival",
+                "queue": self.name,
+                "time": arrival_time,
+            }
         )
 
         # Request a server
@@ -29,7 +35,12 @@ class GGCQueue:
 
             wait_time = self.env.now - arrival_time
             queue_system.event_log.append(
-                f"Customer {customer_id} started service after waiting {wait_time:.2f} at queue {self.name}"
+                {
+                    "customer": customer_id,
+                    "action": "service_start",
+                    "queue": self.name,
+                    "time": self.env.now,
+                }
             )
 
             # Service time is sampled from the distribution
@@ -37,7 +48,12 @@ class GGCQueue:
             yield self.env.timeout(service_time)
 
             queue_system.event_log.append(
-                f"Customer {customer_id} finished service after {service_time:.2f} at queue {self.name}"
+                {
+                    "customer": customer_id,
+                    "action": "service_finish",
+                    "queue": self.name,
+                    "time": self.env.now,
+                }
             )
 
             # Decide the next action based on routing strategy
@@ -47,7 +63,12 @@ class GGCQueue:
                 )
             else:
                 queue_system.event_log.append(
-                    f"Customer {customer_id} leaves the system after {self.name}."
+                    {
+                        "customer": customer_id,
+                        "action": "leave_system",
+                        "queue": self.name,
+                        "time": self.env.now,
+                    }
                 )
 
     def generate_customers(self, queue_system):
@@ -64,6 +85,7 @@ class GGCQueue:
 
 class QueueSystem:
     """Queue system manages multiple queues and tracks customer IDs"""
+
     def __init__(self, env, queues):
         self.env = env
         self.queues = queues
@@ -79,4 +101,3 @@ class QueueSystem:
         """Increment the customer ID counter and return the next unique ID"""
         self.customer_id_counter += 1
         return self.customer_id_counter
-
