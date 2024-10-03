@@ -16,7 +16,6 @@ class GGCQueue:
         self.service_time_dist = service_time_dist
         self.inter_arrival_dist = inter_arrival_dist
         self.routing_strategy = routing_strategy
-        self.waiting_times = []
         self.customers_served = 0
 
     def customer(self, customer_id, queue_system):
@@ -30,7 +29,6 @@ class GGCQueue:
             yield request
 
             wait_time = self.env.now - arrival_time
-            self.waiting_times.append(wait_time)
             queue_system.event_log.append(
                 f"Customer {customer_id} started service after waiting {wait_time:.2f} at queue {self.name}"
             )
@@ -83,3 +81,4 @@ class QueueSystem:
         """Increment the customer ID counter and return the next unique ID"""
         self.customer_id_counter += 1
         return self.customer_id_counter
+
