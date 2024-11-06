@@ -1,6 +1,6 @@
 [project]
 name = "SimQ"
-version = "0.1.0"
+version = "0.1.1"
 description = "A SimPy-based queueing network simulation tool."
 authors = [
     {name = "galenseilis", email = "galen.seilis@seilis.ca"},
