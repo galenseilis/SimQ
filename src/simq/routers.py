@@ -24,6 +24,3 @@ def leave_router(customer_id: int, node: Node, network: Network) -> None:
 def probability_router(
     customer_id: int, node: Node, network: Network, probs: list[str]
 ) -> Generator[Any, Any, Any] | None: ...
-
-
-

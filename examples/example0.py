@@ -1,18 +1,3 @@
-# SimQ
-
-Queueing network tool based on SimPy.
-
-# Installation
-
-```bash
-pip install SimQ
-```
-
-# Example
-
-The following is a simple example of using SimQ to simulate a single-node queueing system.
-
-```python
 """Single-queue simulation example."""
 
 COMMENT_SECTIONS = """
@@ -36,6 +21,7 @@ contents:
 
 import simpy
 from simdist import dists
+
 from simq.core import Network, Node
 
 ####################
@@ -111,4 +97,3 @@ _ = env.run(until=SIMULATION_TIME)
 
 for entry in system.event_log:
     print(entry)
-```

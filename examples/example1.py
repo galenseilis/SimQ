@@ -1,8 +1,9 @@
-import simpy
 from collections.abc import Generator
 from typing import Any
+
+import simpy
 from simdist import dists
-from simq.core import Node, Network
+from simq.core import Network, Node
 
 
 # Some chance of going to Queue 2 after Queue 1, else leave the system.
