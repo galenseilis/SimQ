@@ -4,14 +4,17 @@ from typing import Any
 from simdist import dists
 from simq.core import Node, Network
 
+
 # Some chance of going to Queue 2 after Queue 1, else leave the system.
-def queue1_routing(customer_id: int, current_queue: Node, queue_system: Network) -> Generator[Any, Any, Any] | None:
+def queue1_routing(
+    customer_id: int, current_queue: Node, queue_system: Network
+) -> Generator[Any, Any, Any] | None:
     if dists.Gamma(1, 1).sample() < 0.5:
         queue_system.log(
             {
                 "customer": customer_id,
-                "node": current_queue.name,
                 "action": "routing",
+                "node": current_queue.name,
                 "destination": 1,
             }
         )
@@ -22,22 +25,24 @@ def queue1_routing(customer_id: int, current_queue: Node, queue_system: Network)
         queue_system.log(
             {
                 "customer": customer_id,
-                "node": current_queue.name,
                 "action": "routing",
+                "node": current_queue.name,
                 "destination": "exit",
             }
         )
+
 
 # After Queue 2, customer always leaves the system
 def queue2_routing(customer_id: int, current_queue: Node, queue_system: Network):
     queue_system.log(
         {
             "customer": customer_id,
-            "node": current_queue.name,
             "action": "routing",
+            "node": current_queue.name,
             "destination": "exit",
         }
     )
+
 
 # Example usage with multiple queues and individual routing strategies
 env = simpy.Environment()
