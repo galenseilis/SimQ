@@ -14,8 +14,8 @@ class Node:
         env: simpy.Environment,
         name: str,
         num_servers: int,
-        service_time_dist: dists.Distribution,
         inter_arrival_dist: dists.Distribution,
+        service_time_dist: dists.Distribution,
         routing_strategy: Callable[
             [int, Self, Network], Generator[Any, Any, Any] | None
         ]
@@ -25,14 +25,16 @@ class Node:
         self.name: str = name
         # TODO: Generalize to network-wide resource pool.
         self.server: simpy.Resource = simpy.Resource(env, capacity=num_servers)
-        self.service_time_dist: dists.Distribution = service_time_dist
         self.inter_arrival_dist: dists.Distribution = inter_arrival_dist
+        self.service_time_dist: dists.Distribution = service_time_dist
         # WARN: routing_strategy type annotation may not be right.
         self.routing_strategy: (
             Callable[[int, Self, Network], Generator[Any, Any, Any] | None] | None
         ) = routing_strategy
 
-    def _log_customer_action(self, customer_id:int, network: Network, action: str) -> None:
+    def _log_customer_action(
+        self, customer_id: int, network: Network, action: str
+    ) -> None:
         log_entry: dict[str, Any] = {
             "customer": customer_id,
             "action": action,
@@ -45,14 +47,14 @@ class Node:
     # WARN: Not convinced that `Generator[Any, Any, Any]` is the most specific type we could use.
     def service(self, customer_id: int, network: Network) -> Generator[Any, Any, Any]:
         """Service a customer."""
-        self._log_customer_action(customer_id, network, 'arrival')
+        self._log_customer_action(customer_id, network, "arrival")
 
         # Request a server
-        request = self.server.request() 
+        request = self.server.request()
         with request:
             yield request
 
-            self._log_customer_action(customer_id, network, 'service_start')
+            self._log_customer_action(customer_id, network, "service_start")
 
             # Service time is sampled from the distribution
             service_time: float = self.service_time_dist.sample({"node": self})
@@ -64,7 +66,7 @@ class Node:
                 if route_event is not None:
                     yield self.env.process(route_event)
             else:
-                self._log_customer_action(customer_id, network, 'leave')
+                self._log_customer_action(customer_id, network, "leave")
 
     def generate_customers(self, network: Network) -> Generator[Any, Any, Any]:
         """Generate customers for this queue based on its inter-arrival time distribution."""

@@ -33,7 +33,9 @@ def queue1_routing(
 
 
 # After Queue 2, customer always leaves the system
-def queue2_routing(customer_id: int, current_queue: Node, queue_system: Network):
+def queue2_routing(
+    customer_id: int, current_queue: Node, queue_system: Network
+) -> None:
     queue_system.log(
         {
             "customer": customer_id,
@@ -62,7 +64,7 @@ queue2 = Node(
     name="Queue 2",
     num_servers=1,
     service_time_dist=dists.Gamma(5, 5),
-    inter_arrival_dist=dists.Gamma(1, 1),  # Different arrival rate for Queue 2
+    inter_arrival_dist=dists.Gamma(1, 2),  # Different arrival rate for Queue 2
     routing_strategy=queue2_routing,
 )
 
