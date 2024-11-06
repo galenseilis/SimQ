@@ -7,6 +7,7 @@ authors = [
 ]
 dependencies = [
     "simpy>=4.1.1",
+    "simdist>=0.1.1",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
