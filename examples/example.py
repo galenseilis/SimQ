@@ -1,68 +1,75 @@
 import simpy
+from collections.abc import Generator
+from typing import Any
+from simdist import dists
+from simq.core import Node, Network
 
-from simq.dists import Exponential, Normal
-from simq.core import GGCQueue, QueueSystem
-import numpy as np
-
-# After Queue 1, 50% chance to go to Queue 2, or leave the system
-def queue1_routing(customer_id, current_queue, queue_system):
-    if np.random.rand() < 0.5:
-        queue_system.event_log.append(
-            f"Customer {customer_id} is routed from {current_queue.name} to Queue 2."
+# Some chance of going to Queue 2 after Queue 1, else leave the system.
+def queue1_routing(customer_id: int, current_queue: Node, queue_system: Network) -> Generator[Any, Any, Any] | None:
+    if dists.Gamma(1, 1).sample() < 0.5:
+        queue_system.log(
+            {
+                "customer": customer_id,
+                "node": current_queue.name,
+                "action": "routing",
+                "destination": 1,
+            }
         )
         yield queue_system.env.process(
-            queue_system.queues[1].customer(customer_id, queue_system)
+            queue_system.nodes[1].service(customer_id, queue_system)
         )
     else:
-        queue_system.event_log.append(
-            f"Customer {customer_id} leaves the system after {current_queue.name}."
+        queue_system.log(
+            {
+                "customer": customer_id,
+                "node": current_queue.name,
+                "action": "routing",
+                "destination": "exit",
+            }
         )
 
-
 # After Queue 2, customer always leaves the system
-def queue2_routing(customer_id, current_queue, queue_system):
-    queue_system.event_log.append(
-        f"Customer {customer_id} leaves the system after {current_queue.name}."
+def queue2_routing(customer_id: int, current_queue: Node, queue_system: Network):
+    queue_system.log(
+        {
+            "customer": customer_id,
+            "node": current_queue.name,
+            "action": "routing",
+            "destination": "exit",
+        }
     )
-
 
 # Example usage with multiple queues and individual routing strategies
 env = simpy.Environment()
 
 # Define the queues with different service and arrival distributions, and routing strategies
-queue1 = GGCQueue(
+queue1 = Node(
     env,
     name="Queue 1",
     num_servers=2,
-    service_time_dist=Exponential(rate=3.0),
-    inter_arrival_dist=Exponential(rate=2.0),
+    service_time_dist=dists.Gamma(1, 1),
+    inter_arrival_dist=dists.Gamma(1, 1),
     routing_strategy=queue1_routing,
 )
 
-queue2 = GGCQueue(
+queue2 = Node(
     env,
     name="Queue 2",
     num_servers=1,
-    service_time_dist=Normal(mean=2.0, stddev=0.5),
-    inter_arrival_dist=Exponential(rate=1.5),  # Different arrival rate for Queue 2
+    service_time_dist=dists.Gamma(5, 5),
+    inter_arrival_dist=dists.Gamma(1, 1),  # Different arrival rate for Queue 2
     routing_strategy=queue2_routing,
 )
 
 # Define a queue system with multiple queues
-system = QueueSystem(env, [queue1, queue2])
+system = Network(env, [queue1, queue2])
 
 # Start customer generation for all queues
 system.start_customer_generation()
 
 # Run the simulation
-simulation_time = 30.0
-env.run(until=simulation_time)
+simulation_time: float = 30.0
+_ = env.run(until=simulation_time)
 
-# Results: Average waiting time per queue
-for queue in system.queues:
-    if queue.waiting_times:
-        avg_wait_time = np.mean(queue.waiting_times)
-        print(f"\nAverage waiting time at {queue.name}: {avg_wait_time:.2f}")
-    else:
-        print(f"\nNo customers waited at {queue.name}.")
-    print(f"Customers served at {queue.name}: {queue.customers_served}")
+for entry in system.event_log:
+    print(entry)
